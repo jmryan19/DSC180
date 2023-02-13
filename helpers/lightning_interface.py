@@ -23,7 +23,7 @@ class SuperFace(pl.LightningModule):
         self.layer_defs = layer_defs
         self.batch_size = batch_size
         
-        self.init_model()
+        #self.init_model()
         
         
     def init_model(self):
