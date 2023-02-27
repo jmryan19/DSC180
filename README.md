@@ -8,3 +8,6 @@ https://drive.google.com/file/d/1ohwft3_8NwzNdOXfInJzIMqyTxUvhfTS/view?usp=shari
 In order to run:
 Must be run with a GPU!
 python run.py [test or train] model [batch size (32 works best)]
+
+
+The website corresponding to this project is located at https://jmryan19.github.io/DSC180.io/
