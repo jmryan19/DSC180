@@ -31,8 +31,8 @@ class XRai(nn.Module):
                 gradients = grads.detach().numpy()
                 return {saliency.base.INPUT_OUTPUT_GRADIENTS: gradients}
 
-        print(im)
-        print(im.shape)
+#         print(im)
+#         print(im.shape)
         im = torch.movedim(im, 0, 2).numpy()
         xrai_object = saliency.XRAI()
 
