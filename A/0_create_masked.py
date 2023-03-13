@@ -17,7 +17,10 @@ TEST_PATH = '/home/jmryan/private/DSC180/A/test/testdata.csv'
 TRAIN_PATH = '/home/jmryan/private/DSC180/A/train/traindata.csv'
 VAL_PATH = '/home/jmryan/private/DSC180/A/val/valdata.csv'
 SAVE_PATH = '/home/jmryan/teams/dsc-180a---a14-[88137]/seg_256_pandas/'
-SIZE = [256,256]
+LUNG_PATH = '/home/jmryan/teams/dsc-180a---a14-[88137]/seg_lung_224_pandas/'
+HEART_PATH = '/home/jmryan/teams/dsc-180a---a14-[88137]/seg_heart_224_pandas/'
+
+SIZE = [224,224]
 
 
 def read_ins():
@@ -44,8 +47,11 @@ def change_im(im):
     im = tens(resize(pil(im)))[0]
     return im
 
-def fix_segments(im):
-    segment = np.add(np.add(im[:,:,0], im[:,:,1]) ,im[:,:,2]) > im[:,:,1].mean()
+def fix_segments(im, lung = True):
+    if lung:
+        segment = np.add(im[:,:,0], im[:,:,1]) > im[:,:,1].mean()
+    else:
+        segment = im[:,:,2] > im[:,:,2].mean()
     return torch.tensor(segment.astype(float))
 
 def save_files():
@@ -57,22 +63,31 @@ def save_files():
         row = merged.iloc[i]
         key = row.id
         full_im = torch.load(DATA_DIR_PATH + row.filepaths)
-        seg_im = change_im(full_im) * change_im(fix_segments(im[i]))
+        #seg_im = change_im(full_im) * change_im(fix_segments(im[i]))
+        lung_seg = change_im(full_im) * change_im(fix_segments(im[i]))
+        heart_seg = change_im(full_im) * change_im(fix_segments(im[i], lung = False))
         
-        folder_path = SAVE_PATH + str(key) + '/'
+        lung_folder_path = LUNG_PATH + str(key) + '/'
+        heart_folder_path = HEART_PATH + str(key) + '/'
             
-        if not os.path.exists(folder_path):
-            os.mkdir(folder_path)
+        if not os.path.exists(lung_folder_path):
+            os.mkdir(lung_folder_path)
             
-        file_path = folder_path + f'{key}_256.pandas'
-        torch.save(seg_im, file_path)
-        file_paths.append(file_path)
+        if not os.path.exists(heart_folder_path):
+            os.mkdir(heart_folder_path)
+            
+        lung_file_path = lung_folder_path + f'{key}_224.pandas'
+        heart_file_path = heart_folder_path + f'{key}_224.pandas'
+
+        torch.save(lung_seg, lung_file_path)
+        torch.save(heart_seg, heart_file_path)
+        #file_paths.append(file_path)
    
         if i % 500 == 0:
                 print(i)
             
-    merged['seg_paths'] = file_paths
-    merged.to_csv('/home/jmryan/teams/dsc-180a---a14-[88137]/segmented_256_datapaths_meta.csv')
+#     merged['seg_paths'] = file_paths
+#     merged.to_csv('/home/jmryan/teams/dsc-180a---a14-[88137]/segmented_256_datapaths_meta.csv')
                         
 save_files()
    
